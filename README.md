@@ -70,25 +70,14 @@ We've included caffe pre-trained models. Should you use these pre-trained weight
 * [FlowNet2-S](https://drive.google.com/file/d/1V61dZjFomwlynwlYklJHC-TLfdFom3Lg/view?usp=sharing)[148MB]
 * [FlowNet2-SD](https://drive.google.com/file/d/1QW03eyYG_vD-dT-Mx4wopYvtPu_msTKn/view?usp=sharing)[173MB]
     
-## Inference
-    # Example on MPISintel Clean   
-    python main.py --inference --model FlowNet2 --save_flow --inference_dataset MpiSintelClean \
-    --inference_dataset_root /path/to/mpi-sintel/clean/dataset \
-    --resume /path/to/checkpoints 
-    
 ## Training and validation
-
-    # Example on MPISintel Final and Clean, with L1Loss on FlowNet2 model
-    python main.py --batch_size 8 --model FlowNet2 --loss=L1Loss --optimizer=Adam --optimizer_lr=1e-4 \
-    --training_dataset MpiSintelFinal --training_dataset_root /path/to/mpi-sintel/final/dataset  \
-    --validation_dataset MpiSintelClean --validation_dataset_root /path/to/mpi-sintel/clean/dataset
-
-    # Example on MPISintel Final and Clean, with MultiScale loss on FlowNet2C model 
-    python main.py --batch_size 8 --model FlowNet2C --optimizer=Adam --optimizer_lr=1e-4 --loss=MultiScale --loss_norm=L1 \
-    --loss_numScales=5 --loss_startScale=4 --optimizer_lr=1e-4 --crop_size 384 512 \
-    --training_dataset FlyingChairs --training_dataset_root /path/to/flying-chairs/dataset  \
-    --validation_dataset MpiSintelClean --validation_dataset_root /path/to/mpi-sintel/clean/dataset
+    # Example on FlyingChairs for Training and MPISintel Clean  
+    python main.py --total_epochs 100 --batch_size 8 --model FlowNet2S　--loss=L1Loss --optimizer=Adam --optimizer_lr=1e-4 --training_dataset　FlyingChairs --training_dataset_root /data/FlyingChairs/data　--validation_dataset MpiSintelClean --validation_dataset_root　/data/MPI-Sintel/training -ng 1
     
+## Inference
+    # Example on MPISintel Clean, with L1Loss on FlowNet2S model
+    python main.py --inference --model FlowNet2S --save_flow --inference_datasetMpiSintelClean --inference_dataset_root /data/MPI-Sintel/training --resume ./work/FlowNet2S_model_best.pth.tar
+
 ## Results on MPI-Sintel
 [![Predicted flows on MPI-Sintel](./image.png)](https://www.youtube.com/watch?v=HtBmabY8aeU "Predicted flows on MPI-Sintel")
 
@@ -120,3 +109,4 @@ Paper : [PWC-Net: CNNs for Optical Flow Using Pyramid, Warping, and Cost Volume]
 
 ## Acknowledgments
 Parts of this code were derived, as noted in the code, from [ClementPinard/FlowNetPytorch](https://github.com/ClementPinard/FlowNetPytorch).
+Majority of this code are from https://github.com/NVIDIA/flownet2-pytorch.git and https://github.com/jiecaoyu/XNOR-Net-PyTorch.
