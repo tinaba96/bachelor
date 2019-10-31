@@ -370,20 +370,10 @@ if __name__ == '__main__':
                 last_log_time = progress._time()
 
                 all_losses = np.array(statistics)
-                
-                #print(all_losses)
-                #print('a',len(all_losses[:,0]),'b')
-                #all_losses2 = [[float(all_losses[i,j].cpu()) for i in range(65)] for j in range(2)]
-                ''' 
-                for j,_ in enumerate(loss_labels):
-                    for i in range(len(all_losses[:j])):
-                        if (type(all_losses[i,j]) != float):
-                            print('aaaaa')
-                            all_losses[i,j] = float(all_losses[i,j].cpu())
+
                 for i, key in enumerate(loss_labels):
                     logger.add_scalar('average batch '+ str(key) , all_losses[:, i].mean(), global_iteration)
-                    logger.add_histogram(str(key), all_losses[:, i], global_iteration)
-                '''
+                    logger.add_histogram(str(key), all_losses[:, i], global_iteration)            
 
            # Reset Summary
             t_statistics = []
