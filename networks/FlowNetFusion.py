@@ -13,14 +13,14 @@ class FlowNetFusion(nn.Module):
         super(FlowNetFusion,self).__init__()
 
         self.batchNorm = batchNorm
-        self.conv0   = conv(self.batchNorm,  11,   64)
-        self.conv1   = conv(self.batchNorm,  64,   64, stride=2)
-        self.conv1_1 = conv(self.batchNorm,  64,   128)
-        self.conv2   = conv(self.batchNorm,  128,  128, stride=2)
-        self.conv2_1 = conv(self.batchNorm,  128,  128)
+        self.conv0   = qconv(self.batchNorm,  11,   64)
+        self.conv1   = qconv(self.batchNorm,  64,   64, stride=2)
+        self.conv1_1 = qconv(self.batchNorm,  64,   128)
+        self.conv2   = qconv(self.batchNorm,  128,  128, stride=2)
+        self.conv2_1 = qconv(self.batchNorm,  128,  128)
 
-        self.deconv1 = deconv(128,32)
-        self.deconv0 = deconv(162,16)
+        self.deconv1 = qdeconv(128,32)
+        self.deconv0 = qdeconv(162,16)
 
         self.inter_conv1 = i_conv(self.batchNorm,  162,   32)
         self.inter_conv0 = i_conv(self.batchNorm,  82,   16)
