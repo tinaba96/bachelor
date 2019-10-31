@@ -1,5 +1,9 @@
 # Quantization-Flownet2-PyTorch
 
+This is a quantized network for flownet which is implemented by https://github.com/NVIDIA/flownet2-pytorch.git
+
+The algorithm I used for the quantization is similar to https://github.com/jiecaoyu/XNOR-Net-PyTorch
+
 # flownet2-pytorch 
 
 Pytorch implementation of [FlowNet 2.0: Evolution of Optical Flow Estimation with Deep Networks](https://arxiv.org/abs/1612.01925). 
