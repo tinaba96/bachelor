@@ -1,6 +1,6 @@
 # Quantization-Flownet2-PyTorch
 
-This is a quantized network for flownet which is implemented by https://github.com/NVIDIA/flownet2-pytorch.git
+This is a Pytorch implementation of quantized network for flownet implemented in https://github.com/NVIDIA/flownet2-pytorch.git
 
 The algorithm I used for this quantization is similar to https://github.com/jiecaoyu/XNOR-Net-PyTorch
 
@@ -119,5 +119,5 @@ Code (in Caffe and Pytorch): [PWC-Net](https://github.com/NVlabs/PWC-Net) <br />
 Paper : [PWC-Net: CNNs for Optical Flow Using Pyramid, Warping, and Cost Volume](https://arxiv.org/abs/1709.02371). 
 
 ## Acknowledgments
-Parts of this code were derived, as noted in the code, from [ClementPinard/FlowNetPytorch](https://github.com/ClementPinard/FlowNetPytorch).
+Parts of this code were derived, as noted in the code, from [ClementPinard/FlowNetPytorch](https://github.com/ClementPinard/FlowNetPytorch). <br />
 Majority of this code are from https://github.com/NVIDIA/flownet2-pytorch.git and https://github.com/jiecaoyu/XNOR-Net-PyTorch.
