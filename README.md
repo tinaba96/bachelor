@@ -79,6 +79,16 @@ We've included caffe pre-trained models. Should you use these pre-trained weight
     # Example on MPISintel Clean, with L1Loss on FlowNet2S model
     python main.py --inference --model FlowNet2S --save_flow --inference_datasetMpiSintelClean --inference_dataset_root /data/MPI-Sintel/training --resume ./work/FlowNet2S_model_best.pth.tar
 
+## Visualization of the output flow
+
+    ./flow-code/color_flow work/inference/run.epoch-0-flow-field/000000.floflownet2s.png 
+ color_flow is the comand for visualizing the flow data.
+ 
+ You can see the flow using eog comand.
+ 
+    eog flownet2s.png
+ You can find the correct flow from /data/MPI-Sintel/training/flow_viz.
+
 ## Results on MPI-Sintel
 [![Predicted flows on MPI-Sintel](./image.png)](https://www.youtube.com/watch?v=HtBmabY8aeU "Predicted flows on MPI-Sintel")
 
