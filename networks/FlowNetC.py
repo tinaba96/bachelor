@@ -17,10 +17,10 @@ class FlowNetC(nn.Module):
         self.batchNorm = batchNorm
         self.div_flow = div_flow
 
-        self.conv1   = conv(self.batchNorm,   3,   64, kernel_size=7, stride=2)
-        self.conv2   = conv(self.batchNorm,  64,  128, kernel_size=5, stride=2)
-        self.conv3   = conv(self.batchNorm, 128,  256, kernel_size=5, stride=2)
-        self.conv_redir  = conv(self.batchNorm, 256,   32, kernel_size=1, stride=1)
+        self.conv1   = qconv(self.batchNorm,   3,   64, kernel_size=7, stride=2)
+        self.conv2   = qconv(self.batchNorm,  64,  128, kernel_size=5, stride=2)
+        self.conv3   = qconv(self.batchNorm, 128,  256, kernel_size=5, stride=2)
+        self.conv_redir  = qconv(self.batchNorm, 256,   32, kernel_size=1, stride=1)
 
         if args.fp16:
             self.corr = nn.Sequential(
@@ -31,18 +31,18 @@ class FlowNetC(nn.Module):
             self.corr = Correlation(pad_size=20, kernel_size=1, max_displacement=20, stride1=1, stride2=2, corr_multiply=1)
 
         self.corr_activation = nn.LeakyReLU(0.1,inplace=True)
-        self.conv3_1 = conv(self.batchNorm, 473,  256)
-        self.conv4   = conv(self.batchNorm, 256,  512, stride=2)
-        self.conv4_1 = conv(self.batchNorm, 512,  512)
-        self.conv5   = conv(self.batchNorm, 512,  512, stride=2)
-        self.conv5_1 = conv(self.batchNorm, 512,  512)
-        self.conv6   = conv(self.batchNorm, 512, 1024, stride=2)
-        self.conv6_1 = conv(self.batchNorm,1024, 1024)
+        self.conv3_1 = qconv(self.batchNorm, 473,  256)
+        self.conv4   = qconv(self.batchNorm, 256,  512, stride=2)
+        self.conv4_1 = qconv(self.batchNorm, 512,  512)
+        self.conv5   = qconv(self.batchNorm, 512,  512, stride=2)
+        self.conv5_1 = qconv(self.batchNorm, 512,  512)
+        self.conv6   = qconv(self.batchNorm, 512, 1024, stride=2)
+        self.conv6_1 = qconv(self.batchNorm,1024, 1024)
 
-        self.deconv5 = deconv(1024,512)
-        self.deconv4 = deconv(1026,256)
-        self.deconv3 = deconv(770,128)
-        self.deconv2 = deconv(386,64)
+        self.deconv5 = qdeconv(1024,512)
+        self.deconv4 = qdeconv(1026,256)
+        self.deconv3 = qdeconv(770,128)
+        self.deconv2 = qdeconv(386,64)
 
         self.predict_flow6 = predict_flow(1024)
         self.predict_flow5 = predict_flow(1026)
