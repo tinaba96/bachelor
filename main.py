@@ -374,18 +374,18 @@ if __name__ == '__main__':
                 #print(all_losses)
                 #print('a',len(all_losses[:,0]),'b')
                 #all_losses2 = [[float(all_losses[i,j].cpu()) for i in range(65)] for j in range(2)]
-                
+                ''' 
                 for j,_ in enumerate(loss_labels):
                     for i in range(len(all_losses[:j])):
                         if (type(all_losses[i,j]) != float):
                             print('aaaaa')
                             all_losses[i,j] = float(all_losses[i,j].cpu())
-               
-                print('q',all_losses,'b') 
                 for i, key in enumerate(loss_labels):
                     logger.add_scalar('average batch '+ str(key) , all_losses[:, i].mean(), global_iteration)
                     logger.add_histogram(str(key), all_losses[:, i], global_iteration)
-            # Reset Summary
+                '''
+
+           # Reset Summary
             t_statistics = []
 
             if ( is_validate and ( batch_idx == args.validation_n_batches) ):
@@ -426,7 +426,7 @@ if __name__ == '__main__':
 
         for batch_idx, (data, target) in enumerate(progress):
             if args.cuda:
-                data, target = [d.cuda(True) for d in data], [t.cuda(True) for t in target]
+                data, target = [d.cuda() for d in data], [t.cuda() for t in target]
             data, target = [Variable(d) for d in data], [Variable(t) for t in target]
 
             # when ground-truth flows are not available for inference_dataset, 
@@ -437,8 +437,8 @@ if __name__ == '__main__':
 
             losses = [torch.mean(loss_value) for loss_value in losses] 
             loss_val = losses[0] # Collect first loss for weight update
-            total_loss += loss_val.data[0]
-            loss_values = [v.data[0] for v in losses]
+            total_loss += loss_val.data
+            loss_values = [v.data for v in losses]
 
             # gather loss_labels, direct return leads to recursion limit error as it looks for variables to gather'
             loss_labels = list(model.module.loss.loss_labels)
