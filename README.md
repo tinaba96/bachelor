@@ -1,123 +1,103 @@
-# Quantization-Flownet2-PyTorch
+# Bachelor
+# Quantization of Convolutional Neural Network for Motion Estimation for FPGA Implementation
+
+
+
 
 This is a Pytorch implementation of quantized network for flownet implemented in https://github.com/NVIDIA/flownet2-pytorch.git
 
 The algorithm I used for this quantization is similar to https://github.com/jiecaoyu/XNOR-Net-PyTorch
 
-# flownet2-pytorch 
-This is based on README.md from https://github.com/NVIDIA/flownet2-pytorch.git
 
-Pytorch implementation of [FlowNet 2.0: Evolution of Optical Flow Estimation with Deep Networks](https://arxiv.org/abs/1612.01925). 
+- - -
+## Background
+- - -
+Recently, the technology of convolutional neural network (CNN) is applied to image recognition. Especially, a network for semantic segmentation, a network for motion estimation and a network for distance estimation are applied to in-vehicle cameras for automatic driving and contribute to driving control. However, these networks need massive calculation and time to process the data. 
 
-Multiple GPU training is supported, and the code provides examples for training or inference on [MPI-Sintel](http://sintel.is.tue.mpg.de/) clean and final datasets. The same commands can be used for training or inference with other datasets. See below for more detail.
 
-Inference using fp16 (half-precision) is also supported.
 
-For more help, type <br />
-    
-    python main.py --help
+- - -
+## Objectives
+- - -
+Since it increases the circuit size of a hardware, I consider the quantization of the weights and activations of CNN for motion estimation, hence that I can reduce the circuit size when I implement the network on FPGA.
+The purpose of this research is to quatize the model to reduce the circuit size without losing the accuracy.
 
-## Network architectures
-Below are the different flownet neural network architectures that are provided. <br />
-A batchnorm version for each network is available.
+- - -
+## Approach
+- - -
+In order to quantize the CNN for motion estimation, I quantized the activations, which are the inputs of the convolutional layer, and weights of the network. 
+As a motion estimation CNN model, I target the [FlowNetSimple](https://github.com/NVIDIA/flownet2-pytorch.git) shown below.
 
- - **FlowNet2S**
- - **FlowNet2C**
- - **FlowNet2CS**
- - **FlowNet2CSS**
- - **FlowNet2SD**
- - **FlowNet2**
+![image](https://github.com/tinaba96/master_old/assets/57109730/db7cf0ce-665b-419d-b0fd-7d541b278f41)
+![image](https://github.com/tinaba96/Quantization-Flownet2-Pytorch/assets/57109730/f904e965-eefa-48cf-b091-d373ae26d36b)
 
-## Custom layers
+### Quantization for the activations
+When quantizing the activations, which are the outputs of the activation function, in the contracting part, I applied batch normalization and used ReLU as the activation function. That is, with batch normalization, the distribution of activation was made `0` on average and `1` on variance. In addition, the value less than `0` was made `0` by the activation function ReLU. Here, I quantized the activations in the range of `0` to `4` (`4σ`) (`σ` indicates the standard deviation). Thanks to applying the normalization and activation function ReLU before the quantization, the range of the activations to be quantized can be fixed.
 
-`FlowNet2` or `FlowNet2C*` achitectures rely on custom layers `Resample2d` or `Correlation`. <br />
-A pytorch implementation of these layers with cuda kernels are available at [./networks](./networks). <br />
-Note : Currently, half precision kernels are not available for these layers.
-
-## Data Loaders
-
-Dataloaders for FlyingChairs, FlyingThings, ChairsSDHom and ImagesFromFolder are available in [datasets.py](./datasets.py). <br />
-
-## Loss Functions
-
-L1 and L2 losses with multi-scale support are available in [losses.py](./losses.py). <br />
-
-## Installation 
-
-    # get flownet2-pytorch source
-    git clone https://github.com/NVIDIA/flownet2-pytorch.git
-    cd flownet2-pytorch
-
-    # install custom layers
-    bash install.sh
-    
-### Python requirements 
-Currently, the code supports python 3
-* numpy 
-* PyTorch ( == 0.4.1, for <= 0.4.0 see branch [python36-PyTorch0.4](https://github.com/NVIDIA/flownet2-pytorch/tree/python36-PyTorch0.4))
-* scipy 
-* scikit-image
-* tensorboardX
-* colorama, tqdm, setproctitle 
-
-## Converted Caffe Pre-trained Models
-We've included caffe pre-trained models. Should you use these pre-trained weights, please adhere to the [license agreements](https://drive.google.com/file/d/1TVv0BnNFh3rpHZvD-easMb9jYrPE2Eqd/view?usp=sharing). 
-
-* [FlowNet2](https://drive.google.com/file/d/1hF8vS6YeHkx3j2pfCeQqqZGwA_PJq_Da/view?usp=sharing)[620MB]
-* [FlowNet2-C](https://drive.google.com/file/d/1BFT6b7KgKJC8rA59RmOVAXRM_S7aSfKE/view?usp=sharing)[149MB]
-* [FlowNet2-CS](https://drive.google.com/file/d/1iBJ1_o7PloaINpa8m7u_7TsLCX0Dt_jS/view?usp=sharing)[297MB]
-* [FlowNet2-CSS](https://drive.google.com/file/d/157zuzVf4YMN6ABAQgZc8rRmR5cgWzSu8/view?usp=sharing)[445MB]
-* [FlowNet2-CSS-ft-sd](https://drive.google.com/file/d/1R5xafCIzJCXc8ia4TGfC65irmTNiMg6u/view?usp=sharing)[445MB]
-* [FlowNet2-S](https://drive.google.com/file/d/1V61dZjFomwlynwlYklJHC-TLfdFom3Lg/view?usp=sharing)[148MB]
-* [FlowNet2-SD](https://drive.google.com/file/d/1QW03eyYG_vD-dT-Mx4wopYvtPu_msTKn/view?usp=sharing)[173MB]
-    
-## Training and validation
-    # Example on FlyingChairs for Training and MPISintel Clean  
-    python main.py --total_epochs 100 --batch_size 8 --model FlowNet2S　--loss=L1Loss --optimizer=Adam --optimizer_lr=1e-4 --training_dataset　FlyingChairs --training_dataset_root /data/FlyingChairs/data　--validation_dataset MpiSintelClean --validation_dataset_root　/data/MPI-Sintel/training -ng 1
-    
-## Inference
-    # Example on MPISintel Clean, with L1Loss on FlowNet2S model
-    python main.py --inference --model FlowNet2S --save_flow --inference_datasetMpiSintelClean --inference_dataset_root /data/MPI-Sintel/training --resume ./work/FlowNet2S_model_best.pth.tar
-
-## Visualization of the output flow
-
-    ./flow-code/color_flow work/inference/run.epoch-0-flow-field/000000.floflownet2s.png 
- color_flow is the comand for visualizing the flow data.
+ In addition, before applying the quantization of the expanding part, the expanding part of the unquantized network FlowNerSimple was modified to be easy to quantize as follows. In the unquantized network FlowNetSimple, the
  
- You can see the flow using eog comand.
+refinement is performed by using upconvolution and the activation function LeakyReLU. Therefore, we first replace upconvolution with convolution and upsampling using bilinear interpolation. Then we perform batch normalization after convolution to determine the range to be quantized. By modifying in this way, it became possible to quantize the expanding part as same as the contracting part.
+In addition, since batch normalization cannot be applied before flow prediction, flow prediction is not performed in each layer of the expanding part in the modified network. Hence, flow prediction is performed only in the output layer. That is, the concatenation in each layer of the expanding part is not the output of layers of the contracting part, the output of the previous layer and the predicted flow, but only the output of layers of the contracting part and the output of the previous layers
  
-    eog flownet2s.png
- You can find the correct flow from /data/MPI-Sintel/training/flow_viz.
 
-## Results on MPI-Sintel
-[![Predicted flows on MPI-Sintel](./image.png)](https://www.youtube.com/watch?v=HtBmabY8aeU "Predicted flows on MPI-Sintel")
+### Quantization for the weights
+In the quantization of weights, since it is known that the average of the weights distribution is `0` and the standard deviation is smaller than `1`, I set the quantization range from `-1` to `1`. As the process flow, I first quantize weights and save unquantized weights. Next, forward and backward calculations are executed. After carrying out forward and backward calculations with quantized weights, the unquantized weights are restored. Finally, the weights are updated using unquantized weights. That is, at the time of learning, inference and error back propagation are performed using the quantized weights, and the weights before quantization are updated using the obtained gradients.
 
-## Reference 
-If you find this implementation useful in your work, please acknowledge it appropriately and cite the paper:
-````
-@InProceedings{IMKDB17,
-  author       = "E. Ilg and N. Mayer and T. Saikia and M. Keuper and A. Dosovitskiy and T. Brox",
-  title        = "FlowNet 2.0: Evolution of Optical Flow Estimation with Deep Networks",
-  booktitle    = "IEEE Conference on Computer Vision and Pattern Recognition (CVPR)",
-  month        = "Jul",
-  year         = "2017",
-  url          = "http://lmb.informatik.uni-freiburg.de//Publications/2017/IMKDB17"
-}
-````
-```
-@misc{flownet2-pytorch,
-  author = {Fitsum Reda and Robert Pottorff and Jon Barker and Bryan Catanzaro},
-  title = {flownet2-pytorch: Pytorch implementation of FlowNet 2.0: Evolution of Optical Flow Estimation with Deep Networks},
-  year = {2017},
-  publisher = {GitHub},
-  journal = {GitHub repository},
-  howpublished = {\url{https://github.com/NVIDIA/flownet2-pytorch}}
-}
-```
-## Related Optical Flow Work from Nvidia 
-Code (in Caffe and Pytorch): [PWC-Net](https://github.com/NVlabs/PWC-Net) <br />
-Paper : [PWC-Net: CNNs for Optical Flow Using Pyramid, Warping, and Cost Volume](https://arxiv.org/abs/1709.02371). 
 
-## Acknowledgments
-Parts of this code were derived, as noted in the code, from [ClementPinard/FlowNetPytorch](https://github.com/ClementPinard/FlowNetPytorch). <br />
-Majority of this code are from https://github.com/NVIDIA/flownet2-pytorch.git and https://github.com/jiecaoyu/XNOR-Net-PyTorch.
+- DanQ: Target Hybrid (CNN & RNN) Model for genomics data
+
+![image](https://github.com/tinaba96/master/assets/57109730/cf69250c-abe9-4c8f-b234-f7555692fd1c)
+
+
+- Mutli-FPGA Implementation using AWS F1 Instance
+
+The overview of the FPGA Implementation
+
+![image](https://github.com/tinaba96/master/assets/57109730/909df276-43a6-47c1-b23b-2854795d3a9c)
+
+By separating the process on multiple FPGAs the way they can process individually, I can obtain faster training time.
+I also indicate the result we obtained by implementing the DanQ model on FPGAs. We show three different implementations that are implemented on single FPGA, dual FPGA and 8 FPGAs.
+
+![image](https://github.com/tinaba96/master/assets/57109730/e1f0325d-7e3e-4d4a-9477-5c5fa2e9032b)
+
+I focused on the BiLSTM layer, which consumes about 48% of the whole training time. BiLSTM is time-consuming because there are two LSTM to process. Also, a BiLSTM layer is relatively easy to divide the process which leads to the availability of parallel processing. By dividing these two BiLSTM process into two parts, the processing time can be decreased: the LSTM which reads the input forward is implemented on an FPGA while the other LSTM which reads the input backward is implemented on another FPGA. In addition, we process the BiLSTM layer in parallel using 8 FPGAs by dividing each LSTM layers into 4 parts independently.
+
+
+The overview of the Dual FPGA Implementation
+
+![image](https://github.com/tinaba96/master/assets/57109730/644eec14-1ca4-40a9-8798-63bbcc6f6423)
+
+The overview of the 8 FPGA Implementation
+
+![image](https://github.com/tinaba96/master/assets/57109730/7971036b-98c5-4125-83b8-94a70dd50177)
+
+
+- Cloud Optimization under Give Costs
+My implementation can change the instance size by saving the parameters which are needed to continue the training, such as weights. This enables to control the training time with the instance usage fee. I propose a system to optimize the usage fee depending on the training time given by users. The usage fee fluctuates each time for using an instance in real cloud services such as AWS. Therefore, I introduce to change the instance size during the training according to the usage fee at that time.
+
+![image](https://github.com/tinaba96/master/assets/57109730/1c169898-44f5-4ec8-ae9e-3fc82d9764bf)
+
+- - -
+## Result & Conclusion
+- - -
+- FPGA Implemetaion
+There is a big task for improving the training time for deep learning, especially in the field of genomics. There are huge datasets of DNA sequences to estimate the chromatin effect.
+Therefore, it is necessary to accelerate the training time, and we proposed a method of using an FPGA. We focused on BiLSTM Layer and implemented it on AWS EC2 F1 Instances.
+As a result, we could accelerate the DanQ model by using a single FPGA by 1.05x compared to our CPU implementation. Besides, our implementation on 8 FPGAs gets 2.87x faster than the dual FPGA implementation and 6.00x faster than the CPU implementation.
+
+![image](https://github.com/tinaba96/master/assets/57109730/8ca56459-6f4a-4a55-87a7-13505f2d9d32)
+
+- Cloud Optimization
+There are so many cloud users who concern the trade-off between the cloud usage fee and the execution time. This is because the cloud usage fee always changes each time.
+Therefore, changing the instance size during the training depending on the cloud usage fee at that time leads to a better result in terms of the training time and the cloud instance usage fee.
+Comparing a case of using 8 FPGAs for all time and a case in which we optimized the number of FPGAs during the training with our model, I obtained the result that we can save the cloud usage fee for 56.28% by only taking 16.00% extra time. Therefore, I can optimize the training time as well as the instance usage fee depending on the user’s needs.
+
+![image](https://github.com/tinaba96/master/assets/57109730/bd51c099-913d-4744-a838-b8bdf598d4b7)
+
+
+
+- - -
+- - -
+
+# How To
+
