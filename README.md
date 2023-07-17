@@ -95,5 +95,5 @@ python main.py --inference --model FlowNet2 --save_flow --inference_dataset MpiS
 ```
 
 
-note: This is a Pytorch implementation of quantized network for flownet implemented in (here)[https://github.com/NVIDIA/flownet2-pytorch.git]  
-note: The algorithm I used for this quantization is similar to (here)[https://github.com/jiecaoyu/XNOR-Net-PyTorch]
+note: This is a Pytorch implementation of quantized network for flownet implemented in [here](https://github.com/NVIDIA/flownet2-pytorch.git)  
+note: The algorithm I used for this quantization is similar to [here](https://github.com/jiecaoyu/XNOR-Net-PyTorch)
